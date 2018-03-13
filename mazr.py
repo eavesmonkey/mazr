@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 # Creates random mazes, using a Recursive Backtracking algorithm. Output printed in a txt file.
 # Currently supports only square mazes. Smallest maze size width is 5.
-
 import logging
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 logging.disable(logging.DEBUG)
@@ -11,7 +10,7 @@ import random, os
 width='11'
 height='11'
 counter = 0
-holeSymbol = '-' # '-' 'e'
+gapSymbol = '-' # '-' 'e'
 wallSymbol = 'w' # '0' 'w'
 
 # ask user for input
@@ -52,10 +51,10 @@ def formatAndSave(maze):
         maze[k] = ','.join(maze[k])
 
     maze = '\n'.join(maze)
-    #logging.debug(maze)
+    # Create folder if it doesn't exist.
     if not os.path.exists('mazes'):
         os.makedirs('mazes')
-        
+
     mazeFile = open('mazes/generatedMaze.txt', 'w')
     mazeFile.write(str(maze))
     return print('Maze formatted and saved.')
@@ -63,26 +62,26 @@ def formatAndSave(maze):
 def generateMaze(width, height):
     mazeList = []
 
-    #build outer frame
+    # Build outer frame
     for i in range(0, int(width)):
         column = []
 
         for j in range(0, int(height)):
-            # first row, last row, first column, last column are always walls
+            # First row, last row, first column, last column are always walls
             if i == int(width) - 1 or i % 2 == 0:
                 column.append(wallSymbol)
             else:
                 if j % 2 == 0:
                     column.append(wallSymbol)
                 else:
-                    column.append(holeSymbol)
+                    column.append(gapSymbol)
         mazeList.append(column)
     return mazeList
 
-def cutHole(direction):
+def cutGap(direction):
     global maze
 
-    # bypass the walls
+    # Bypass the walls.
     shift = [0,0]
     if direction[0] < 0:
         shift[0] = 1
@@ -98,10 +97,10 @@ def cutHole(direction):
     else:
         shift[1] = -1
 
-    #cut hole
-    hole = [startpoint[0] + shift[0], startpoint[1] + shift[1]]
-    maze[hole[0]][hole[1]] = holeSymbol
-    logging.debug("Punched a hole at: " + str(hole))
+    #Cut path
+    gap = [startpoint[0] + shift[0], startpoint[1] + shift[1]]
+    maze[gap[0]][gap[1]] = gapSymbol
+    logging.debug("Punched a gap at: " + str(gap))
 
 def createPath(start):
     global startpoint
@@ -126,14 +125,12 @@ def createPath(start):
             counter = 0
             visitedGrid.append(startpoint)
             logging.debug("Moving to: " + str(direction))
-            cutHole(direction)
+            cutGap(direction)
             break
         else:
             logging.debug('directions list: ' + str(directionList))
             # Choose different direction
             directionList.remove(direction)
-
-
 
     logging.debug("New start point set at: " + str(startpoint))
 
